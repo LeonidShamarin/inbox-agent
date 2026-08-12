@@ -49,9 +49,15 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Root   = Split-Path -Parent $PSScriptRoot
-$Image  = 'inbox-agent-tests'
+# Ім'я образу з назви теки проекту: той самий скрипт копіюється між проектами
+# без правок, і образи не перетирають один одного.
+$Image  = "$((Split-Path -Leaf $Root).ToLower())-tests"
 $LogDir = Join-Path $Root '.test-logs'
 $Log    = Join-Path $LogDir 'pytest.log'
+
+# Проект може мати окремий тестовий Dockerfile — там, де робочий образ важкий
+# (напр. тягне torch), а тестам він не потрібен.
+$Dockerfile = if (Test-Path (Join-Path $Root 'Dockerfile.tests')) { 'Dockerfile.tests' } else { 'Dockerfile' }
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir | Out-Null }
 
@@ -77,16 +83,20 @@ if (-not $needBuild) {
     if (-not $existing) {
         $needBuild = $true
     } else {
-        # Перезбираємо, якщо залежності новіші за образ.
+        # Перезбираємо, якщо залежності або сам Dockerfile новіші за образ.
         $imageDate = [datetime]::Parse((docker inspect -f '{{.Created}}' $Image))
-        $reqDate   = (Get-Item (Join-Path $Root 'requirements.txt')).LastWriteTime
-        if ($reqDate -gt $imageDate) { $needBuild = $true }
+        $newest = @('requirements.txt', $Dockerfile) |
+            ForEach-Object { Join-Path $Root $_ } |
+            Where-Object { Test-Path $_ } |
+            ForEach-Object { (Get-Item $_).LastWriteTime } |
+            Sort-Object -Descending | Select-Object -First 1
+        if ($newest -gt $imageDate) { $needBuild = $true }
     }
 }
 
 if ($needBuild) {
-    Write-Host "збираю образ $Image ..." -ForegroundColor DarkGray
-    docker build -q -t $Image $Root | Out-Null
+    Write-Host "збираю образ $Image ($Dockerfile) ..." -ForegroundColor DarkGray
+    docker build -q -f (Join-Path $Root $Dockerfile) -t $Image $Root | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "збірка образу впала" -ForegroundColor Red
         exit 4
