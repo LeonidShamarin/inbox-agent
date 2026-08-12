@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Ключа в CI немає навмисно: увесь набір проходить без мережі, модель
+      # підмінена сценарним фейком. Якщо тест почне вимагати ключ — він тут же
+      # й упаде, і це правильна поведінка.
+      - run: pytest -q
+
+      # Метрики пошуку теж не потребують мережі, тому рахуються на кожен push:
+      # зміна в чанкуванні або в стемері одразу видно числом, а не на око.
+      - run: python main.py eval --retrieval-only

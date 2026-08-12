@@ -1,0 +1,13 @@
+# Нормалізація кінців рядків: у репозиторії завжди LF, у робочій копії — як
+# у системі. Без цього коміт з Windows перетворює весь набір на CRLF і будь-який
+# наступний diff стає нечитабельним.
+* text=auto eol=lf
+
+# Скрипти PowerShell лишаються з CRLF: Windows PowerShell 5.1 читає .ps1 у
+# кодуванні ANSI, якщо немає BOM, і спотикається на LF-only у частині випадків.
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary

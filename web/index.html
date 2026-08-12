@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>inbox-agent — трасa рішень</title>
+<style>
+  :root {
+    --bg:#f5f6f8; --card:#fff; --ink:#14161a; --muted:#697080; --line:#e3e6ec;
+    --accent:#4f46e5; --ok:#067647; --ok-bg:#ecfdf3; --warn:#b45309; --warn-bg:#fff7ed;
+    --err:#b42318; --err-bg:#fef3f2; --tool:#0b5cab; --tool-bg:#eff6ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0e1014; --card:#171a20; --ink:#e7e9ee; --muted:#9aa1af; --line:#262b34;
+      --accent:#8b86f8; --ok:#4ade80; --ok-bg:#12241a; --warn:#f0b429; --warn-bg:#2a2113;
+      --err:#f87171; --err-bg:#2a1616; --tool:#7db1ff; --tool-bg:#152232;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:var(--card);
+           border-bottom:1px solid var(--line); padding:12px 20px;
+           display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:15px; margin:0; font-weight:650; letter-spacing:.2px; }
+  .sub { color:var(--muted); font-size:12.5px; }
+  main { display:grid; grid-template-columns:minmax(280px,1fr) minmax(320px,1.4fr);
+         gap:16px; padding:18px 20px; max-width:1280px; margin:0 auto; align-items:start; }
+  @media (max-width:900px) { main { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card + .card { margin-top:12px; }
+  textarea { width:100%; min-height:74px; resize:vertical; padding:8px 10px;
+             border-radius:8px; border:1px solid var(--line); background:transparent;
+             color:inherit; font:inherit; }
+  input[type=text] { padding:7px 10px; border-radius:8px; border:1px solid var(--line);
+                     background:transparent; color:inherit; font:inherit; }
+  button { font:inherit; padding:7px 14px; border-radius:8px; border:1px solid var(--line);
+           background:var(--card); color:inherit; cursor:pointer; }
+  button.primary { background:var(--accent); border-color:transparent; color:#fff; }
+  button.ok { background:var(--ok); border-color:transparent; color:#fff; }
+  button:disabled { opacity:.5; cursor:default; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  .chip { font-size:11.5px; padding:2px 8px; border-radius:20px; border:1px solid var(--line);
+          color:var(--muted); cursor:pointer; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:20px; }
+  .badge.done { background:var(--ok-bg); color:var(--ok); }
+  .badge.awaiting { background:var(--warn-bg); color:var(--warn); }
+  .badge.aborted { background:var(--err-bg); color:var(--err); }
+  .badge.running { background:var(--tool-bg); color:var(--tool); }
+  .item { padding:9px 10px; border-radius:8px; border:1px solid var(--line);
+          margin-bottom:8px; cursor:pointer; }
+  .item:hover { border-color:var(--accent); }
+  .item.sel { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .item .who { font-weight:600; font-size:13px; }
+  .item .txt { color:var(--muted); font-size:12.5px; margin-top:2px;
+               display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  ol.trace { list-style:none; margin:12px 0 0; padding:0; position:relative; }
+  ol.trace::before { content:""; position:absolute; left:11px; top:6px; bottom:6px;
+                     width:2px; background:var(--line); }
+  ol.trace li { position:relative; padding:0 0 14px 32px; }
+  .dot { position:absolute; left:4px; top:3px; width:16px; height:16px; border-radius:50%;
+         background:var(--card); border:2px solid var(--line); }
+  li.plan .dot { border-color:var(--muted); }
+  li.tool_call .dot { border-color:var(--tool); }
+  li.tool_result .dot { border-color:var(--ok); }
+  li.confirmation_request .dot { border-color:var(--warn); background:var(--warn); }
+  li.human_decision .dot { border-color:var(--accent); background:var(--accent); }
+  li.abort .dot, li.error .dot { border-color:var(--err); background:var(--err); }
+  li.final .dot { border-color:var(--ok); background:var(--ok); }
+  .kind { font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+  .tool-name { font-weight:650; color:var(--tool); }
+  pre { margin:6px 0 0; padding:8px 10px; background:var(--bg); border-radius:7px;
+        font-size:12px; overflow-x:auto; white-space:pre-wrap; word-break:break-word; }
+  .confirm { border:1px solid var(--warn); background:var(--warn-bg); border-radius:10px;
+             padding:12px 14px; margin-top:12px; }
+  .confirm h3 { margin:0 0 6px; font-size:14px; color:var(--warn); }
+  .meta { color:var(--muted); font-size:12px; margin-top:10px; }
+  .empty { color:var(--muted); text-align:center; padding:28px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>inbox-agent</h1>
+  <span class="sub" id="stats">…</span>
+  <span style="flex:1"></span>
+  <button id="refresh">Оновити</button>
+</header>
+
+<main>
+  <section>
+    <div class="card">
+      <b>Новий запит</b>
+      <div class="row"><input type="text" id="sender" value="Олена" style="width:130px"></div>
+      <textarea id="text" placeholder="Напишіть запит, як його написала б людина…"></textarea>
+      <div class="row">
+        <button class="primary" id="send">Надіслати агенту</button>
+        <span class="sub" id="sending"></span>
+      </div>
+      <div class="row" id="samples"></div>
+    </div>
+    <div class="card">
+      <b>Сесії</b>
+      <div id="list" style="margin-top:10px"><div class="empty">порожньо</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card" id="detail"><div class="empty">Оберіть сесію ліворуч</div></div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+let selected = null;
+
+const SAMPLES = [
+  "Скільки днів щорічної відпустки і за скільки попередити керівника?",
+  "Хто має погодити закупівлю ноутбука за 1800 EUR?",
+  "Яка політика щодо оплати курсів з дайвінгу?",
+  "Потрібен доступ на запис у Jira для нового аналітика, він блокований",
+];
+
+const esc = v => String(v ?? "").replace(/[&<>"]/g,
+  c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+const KIND_LABEL = {
+  plan: "план", tool_call: "виклик", tool_result: "результат",
+  confirmation_request: "потрібна людина", human_decision: "рішення людини",
+  final: "підсумок", abort: "зупинено",
+};
+
+function stepHtml(s) {
+  const cls = s.error ? `${s.kind} error` : s.kind;
+  let body = "";
+  if (s.tool) {
+    body += `<div><span class="tool-name">${esc(s.tool.name)}</span></div>`;
+    if (s.kind === "tool_call" || s.kind === "confirmation_request") {
+      body += `<pre>${esc(JSON.stringify(s.tool.args, null, 2))}</pre>`;
+    }
+  }
+  if (s.note) body += `<div>${esc(s.note)}</div>`;
+  if (s.error) body += `<div style="color:var(--err)">${esc(s.error)}</div>`;
+  else if (s.result) {
+    const short = JSON.stringify(s.result, null, 2);
+    body += `<pre>${esc(short.length > 700 ? short.slice(0, 700) + " …" : short)}</pre>`;
+  }
+  const tokens = (s.tokens_in || s.tokens_out)
+    ? `<span class="sub"> · ${s.tokens_in + s.tokens_out} токенів</span>` : "";
+  return `<li class="${cls}"><span class="dot"></span>
+    <span class="kind">${KIND_LABEL[s.kind] || s.kind}</span>${tokens}
+    ${body}</li>`;
+}
+
+function detailHtml(session, effects) {
+  const b = session.budget;
+  const steps = session.steps.map(stepHtml).join("");
+  // У картці показуємо прев'ю — те, що реально станеться (готовий текст
+  // листа, розібраний час зустрічі), а сирі аргументи лишаються нижче в трасі.
+  const lastConfirm = [...session.steps].reverse()
+    .find(s => s.kind === "confirmation_request");
+  const preview = lastConfirm && lastConfirm.result;
+  const previewHtml = preview
+    ? (preview.body
+        ? `<div class="sub" style="margin-top:6px">кому: ${esc(preview.recipient)} · шаблон: ${esc(preview.template)}</div>
+           <pre>${esc(preview.body)}</pre>`
+        : `<pre>${esc(JSON.stringify(preview, null, 2))}</pre>`)
+    : `<pre>${esc(JSON.stringify(session.pending_tool ? session.pending_tool.args : {}, null, 2))}</pre>`;
+
+  const confirm = session.status === "awaiting_confirmation" && session.pending_tool ? `
+    <div class="confirm">
+      <h3>Агент просить дозволу</h3>
+      <div>${esc(session.pending_reason || session.pending_tool.name)}</div>
+      ${previewHtml}
+      <div class="row">
+        <button class="ok" data-decide="approve">Підтвердити</button>
+        <button data-decide="reject">Відхилити</button>
+        <span class="sub" id="decision-flash"></span>
+      </div>
+    </div>` : "";
+  const effectsHtml = Object.keys(effects || {}).length
+    ? `<div class="meta">Побічні ефекти: ${Object.entries(effects)
+        .map(([k, v]) => `${k}: ${v.length}`).join(" · ")}</div>` : "";
+
+  return `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <b>${esc(session.request.sender)} · ${esc(session.request.channel)}</b>
+      <span class="badge ${session.status}">${esc(session.status)}</span>
+    </div>
+    <div class="sub" style="margin-top:4px">${esc(session.request.text)}</div>
+    ${confirm}
+    <ol class="trace">${steps}</ol>
+    <div class="meta">
+      бюджет: ${b.steps}/${window.LIMITS.max_steps} кроків ·
+      ${b.tokens}/${window.LIMITS.max_tokens} токенів ·
+      ${b.elapsed_s.toFixed(1)} с
+    </div>
+    ${session.abort_reason ? `<div class="meta" style="color:var(--err)">${esc(session.abort_reason)}</div>` : ""}
+    ${session.final_answer ? `<div class="meta"><b>Підсумок:</b> ${esc(session.final_answer)}</div>` : ""}
+    ${effectsHtml}`;
+}
+
+async function loadList() {
+  const [data, health] = await Promise.all([
+    fetch("/sessions").then(r => r.json()),
+    fetch("/health").then(r => r.json()),
+  ]);
+  window.LIMITS = health.budgets;
+  const c = health.sessions || {};
+  $("#stats").textContent =
+    `сесій: ${data.count} · чекають на людину: ${data.awaiting || 0} · `
+    + `завершено: ${c.done || 0} · зупинено бюджетом: ${c.aborted || 0} · `
+    + `ліміт ${health.budgets.max_steps} кроків`;
+
+  $("#list").innerHTML = data.items.length ? data.items.map(s => `
+    <div class="item ${s.session_id === selected ? "sel" : ""}" data-id="${esc(s.session_id)}">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <span class="who">${esc(s.sender)}</span>
+        <span class="badge ${s.status}">${esc(s.status)}</span>
+      </div>
+      <div class="txt">${esc(s.text)}</div>
+      <div class="sub" style="margin-top:4px">${(s.tools || []).join(" → ") || "без інструментів"}</div>
+    </div>`).join("") : `<div class="empty">порожньо</div>`;
+}
+
+async function loadDetail(id) {
+  selected = id;
+  const data = await fetch(`/sessions/${encodeURIComponent(id)}`).then(r => r.json());
+  $("#detail").innerHTML = detailHtml(data.session, data.side_effects);
+  document.querySelectorAll(".item").forEach(el =>
+    el.classList.toggle("sel", el.dataset.id === id));
+}
+
+document.addEventListener("click", async e => {
+  const item = e.target.closest(".item");
+  if (item) return loadDetail(item.dataset.id);
+
+  const chip = e.target.closest(".chip");
+  if (chip) { $("#text").value = chip.textContent; return; }
+
+  const decide = e.target.closest("button[data-decide]");
+  if (decide && selected) {
+    const flash = $("#decision-flash");
+    flash.textContent = "…";
+    document.querySelectorAll("button[data-decide]").forEach(b => b.disabled = true);
+    const res = await fetch(`/sessions/${encodeURIComponent(selected)}/decision`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ decision: decide.dataset.decide, decided_by: "web-ui" }),
+    });
+    flash.textContent = res.ok ? "готово" : `помилка ${res.status}`;
+    await loadDetail(selected);
+    await loadList();
+  }
+});
+
+$("#send").addEventListener("click", async () => {
+  const text = $("#text").value.trim();
+  if (!text) return;
+  $("#sending").textContent = "агент працює…";
+  $("#send").disabled = true;
+  const res = await fetch("/requests", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, sender: $("#sender").value || "Користувач" }),
+  });
+  $("#send").disabled = false;
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    $("#sending").textContent = `помилка ${res.status}: ${d.detail || ""}`;
+    return;
+  }
+  const session = await res.json();
+  $("#sending").textContent = "";
+  $("#text").value = "";
+  await loadList();
+  await loadDetail(session.session_id);
+});
+
+$("#refresh").addEventListener("click", async () => {
+  await loadList();
+  if (selected) await loadDetail(selected);
+});
+
+$("#samples").innerHTML = SAMPLES.map(s => `<span class="chip">${esc(s)}</span>`).join("");
+loadList();
+</script>
+</body>
+</html>

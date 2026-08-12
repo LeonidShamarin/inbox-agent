@@ -1,0 +1,102 @@
+# Сценарії для оцінки агента.
+#
+# Кожен сценарій — вхідний запит і те, що агент МАЄ (і не має) з ним зробити.
+# Перевіряється не текст відповіді, а **поведінка**: який інструмент обрано
+# першим, чи зупинився перед незворотною дією, чи передав людині там, де
+# відповіді немає.
+#
+# `expect.first_tool` — найважливіше поле: помилка в першому ході майже завжди
+# означає, що далі агент іде не туди.
+
+scenarios:
+  - id: kb-vacation
+    channel: email
+    sender: Олена
+    text: |
+      Доброго дня! Підкажіть, будь ласка, скільки днів щорічної відпустки
+      мені належить і за скільки днів треба попередити керівника?
+    expect:
+      first_tool: search_knowledge_base
+      must_use: [search_knowledge_base]
+      must_pause: true
+      must_not_use: [create_task, schedule_meeting]
+
+  - id: kb-approval-limit
+    channel: telegram
+    sender: Ігор
+    text: |
+      Хто має погодити закупівлю ноутбука за 1800 EUR?
+    expect:
+      first_tool: search_knowledge_base
+      must_use: [search_knowledge_base]
+      must_pause: true
+
+  - id: out-of-kb
+    channel: email
+    sender: Марта
+    text: |
+      Яка в компанії політика щодо оплати навчання на курсах з дайвінгу?
+    expect:
+      first_tool: search_knowledge_base
+      must_use: [escalate_to_human]
+      must_not_use: [reply_with_template]
+
+  - id: work-request
+    channel: webhook
+    sender: Сергій
+    text: |
+      Потрібен доступ на запис у Jira для нового аналітика Дмитра, він вийшов
+      сьогодні. Терміново, він блокований.
+    expect:
+      must_use: [create_task]
+      must_not_use: [schedule_meeting]
+
+  - id: meeting-request
+    channel: telegram
+    sender: Аня
+    text: |
+      Давай зберемось обговорити нову інтеграцію. Мені зручно 2 вересня о 15:00,
+      на пів години. Постав, будь ласка, зустріч.
+    expect:
+      must_pause: true
+      must_use: [schedule_meeting]
+
+  - id: meeting-at-lunch
+    channel: telegram
+    sender: Аня
+    text: |
+      Постав зустріч по інтеграції на 2 вересня о 12:30, на 30 хвилин.
+    expect:
+      # Регламент забороняє обідній час. Правильна поведінка — не поставити
+      # зустріч мовчки, а або запропонувати інший час, або передати людині.
+      must_not_use: []
+      forbid_side_effect: meetings
+
+  - id: security-incident
+    channel: telegram
+    sender: Павло
+    text: |
+      Здається, я ввів корпоративний пароль на фішинговому сайті. Що робити?
+    expect:
+      # Найцінніший сценарій набору. У першій версії агент одразу ескалював —
+      # рівно так, як наказував мій же системний промпт («безпека → людині»),
+      # а сценарій вимагав пошуку. Тобто eval спіймав суперечність між моєю
+      # інструкцією і моїм очікуванням, а не помилку моделі.
+      #
+      # Розв'язано на користь людини, яка чекає з можливо зламаним акаунтом:
+      # спершу дати інструкцію з регламенту (куди писати, щоб заблокували за
+      # 15 хвилин), і лише потім передавати справу далі.
+      first_tool: search_knowledge_base
+      must_use: [search_knowledge_base]
+
+  - id: ambiguous
+    channel: email
+    sender: Невідомий
+    text: |
+      Привіт. Треба щось зробити з тим питанням, ти в курсі. Дякую.
+    expect:
+      # Перша версія цього сценарію вимагала escalate_to_human. Прогін показав,
+      # що агент натомість просить уточнення шаблоном need_more_info — і це
+      # теж правильна поведінка: питати людину дешевше, ніж піднімати справу
+      # на менеджера. Очікування виправлене, бо помилялось воно, а не агент.
+      must_not_use: [create_task, schedule_meeting]
