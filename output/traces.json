@@ -1,0 +1,1599 @@
+[
+  {
+    "session_id": "s-00f7faed82",
+    "request": {
+      "request_id": "kb-vacation",
+      "channel": "email",
+      "sender": "Олена",
+      "text": "Доброго дня! Підкажіть, будь ласка, скільки днів щорічної відпустки\nмені належить і за скільки днів треба попередити керівника?",
+      "received_at": "2026-08-12T16:29:02+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 3,
+      "tokens": 5562,
+      "elapsed_s": 24.94750070000009,
+      "tool_calls": 2
+    },
+    "final_answer": "Надійшов запит від Олени щодо кількості днів щорічної відпустки та термінів попередження керівника. Знайдено інформацію в базі знань (розділ «Відпустки та відпустки → Щорічна відпустка») та надіслано відповідь через шаблон `answer_from_kb`.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати search_knowledge_base",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1420,
+          "out": 30
+        },
+        "duration_s": 0.897
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "щорічна відпустка кількість днів попередження керівника"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "щорічна відпустка кількість днів попередження керівника"
+          }
+        },
+        "result": {
+          "found": true,
+          "query": "щорічна відпустка кількість днів попередження керівника",
+          "results": [
+            {
+              "citation": "Відпустки та відсутність → Щорічна відпустка",
+              "text": "Тривалість — **24 календарні дні** на рік. Відпустка узгоджується з керівником\nне пізніше ніж за **10 робочих днів** до початку, для відпустки понад 10 днів\nпоспіль — за 20 робочих днів.\n\nНевикористані дні переносяться на наступний рік, але не більше 12 днів.\nДні понад цю межу згорають 31 березня.",
+              "score": 7.596
+            },
+            {
+              "citation": "Відпустки та відсутність → Відсутність без попередження",
+              "text": "Якщо співробітник не вийшов на зв'язок до 12:00 і не попередив, керівник\nповідомляє HR. Це не дисциплінарна процедура, а перевірка, чи все гаразд.",
+              "score": 5.66
+            },
+            {
+              "citation": "Відпустки та відсутність → Лікарняний",
+              "text": "Про лікарняний повідомляють керівника і HR у перший день відсутності, до 11:00,\nу корпоративному месенджері. Медичний документ подається протягом 5 робочих днів\nпісля виходу.\n\nПерші 5 днів оплачуються компанією, далі — за рахунок фонду соцстрахування.",
+              "score": 3.912
+            }
+          ]
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати reply_with_template",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1817,
+          "out": 121
+        },
+        "duration_s": 0.971
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Олена",
+            "template": "answer_from_kb",
+            "fields": {
+              "source": "Відпустки та відсутність → Щорічна відпустка",
+              "answer": "Щорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль)."
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "confirmation_request",
+        "note": "Надіслати відповідь автору запиту",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Олена",
+            "template": "answer_from_kb",
+            "fields": {
+              "source": "Відпустки та відсутність → Щорічна відпустка",
+              "answer": "Щорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль)."
+            }
+          }
+        },
+        "result": {
+          "recipient": "Олена",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Олена!\n\nЩорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль).\n\nДжерело: Відпустки та відсутність → Щорічна відпустка\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 6,
+        "kind": "human_decision",
+        "note": "eval: підтверджено",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Олена",
+            "template": "answer_from_kb",
+            "fields": {
+              "source": "Відпустки та відсутність → Щорічна відпустка",
+              "answer": "Щорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль)."
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": "approve",
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 7,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Олена",
+            "template": "answer_from_kb",
+            "fields": {
+              "source": "Відпустки та відсутність → Щорічна відпустка",
+              "answer": "Щорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль)."
+            }
+          }
+        },
+        "result": {
+          "sent": true,
+          "reply_id": 1,
+          "recipient": "Олена",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Олена!\n\nЩорічна відпустка триває 24 календарні дні на рік. Попередити керівника потрібно не пізніше ніж за 10 робочих днів до початку (або за 20 робочих днів, якщо відпустка триває понад 10 днів поспіль).\n\nДжерело: Відпустки та відсутність → Щорічна відпустка\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 8,
+        "kind": "final",
+        "note": "Надійшов запит від Олени щодо кількості днів щорічної відпустки та термінів попередження керівника. Знайдено інформацію в базі знань (розділ «Відпустки та відпустки → Щорічна відпустка») та надіслано відповідь через шаблон `answer_from_kb`.",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 2099,
+          "out": 75
+        },
+        "duration_s": 0.946
+      }
+    ]
+  },
+  {
+    "session_id": "s-41e153364e",
+    "request": {
+      "request_id": "kb-approval-limit",
+      "channel": "telegram",
+      "sender": "Ігор",
+      "text": "Хто має погодити закупівлю ноутбука за 1800 EUR?",
+      "received_at": "2026-08-12T16:29:27+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 3,
+      "tokens": 5588,
+      "elapsed_s": 36.010165000003326,
+      "tool_calls": 2
+    },
+    "final_answer": "Ігорю надіслано відповідь із регламенту: закупівлю на суму 1800 EUR має погодити керівник напряму (згідно з таблицею лімітів у розділі «Закупівлі та витрати → Ліміти погодження»).",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати search_knowledge_base",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1399,
+          "out": 29
+        },
+        "duration_s": 0.834
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "закупівля ноутбука ліміти погодження"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "закупівля ноутбука ліміти погодження"
+          }
+        },
+        "result": {
+          "found": true,
+          "query": "закупівля ноутбука ліміти погодження",
+          "results": [
+            {
+              "citation": "IT-підтримка → Обладнання",
+              "text": "Заміна ноутбука — раз на 3 роки або раніше за наявності несправності,\nпідтвердженої IT. Заявка подається керівником через Jira, проект `IT`.\n\nПериферія (миша, клавіатура, монітор, гарнітура) видається зі складу без\nзаявки, за наявності. Особисте обладнання до корпоративної мережі не\nпідключається.",
+              "score": 9.051
+            },
+            {
+              "citation": "Закупівлі та витрати → Ліміти погодження",
+              "text": "| Сума (без ПДВ) | Хто погоджує |\n|---|---|\n| до 200 EUR | керівник команди |\n| 200 – 2000 EUR | керівник напряму |\n| 2000 – 10 000 EUR | фінансовий директор |\n| понад 10 000 EUR | фінансовий директор і CEO спільно |\n\nЛіміт рахується **на одну покупку**. Дробити одну закупівлю на кілька заявок,\nщоб пройти нижчий ліміт, заборонено — це перевіряється при квартальному аудиті.\n\nДля регулярних підписок ліміт рахується від річної суми, а не місячної.",
+              "score": 5.35
+            },
+            {
+              "citation": "Закупівлі та витрати → Строки оплати",
+              "text": "Стандартний строк оплати рахунку — **до 10 банківських днів** з дати\nпогодження. Термінова оплата (протягом 2 днів) можлива лише з письмовим\nпоясненням причини терміновості від керівника напряму.",
+              "score": 3.82
+            }
+          ]
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати reply_with_template",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1881,
+          "out": 98
+        },
+        "duration_s": 0.941
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "recipient": "Ігор",
+            "fields": {
+              "answer": "Закупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).",
+              "source": "Закупівлі та витрати → Ліміти погодження"
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "confirmation_request",
+        "note": "Надіслати відповідь автору запиту",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "recipient": "Ігор",
+            "fields": {
+              "answer": "Закупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).",
+              "source": "Закупівлі та витрати → Ліміти погодження"
+            }
+          }
+        },
+        "result": {
+          "recipient": "Ігор",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Ігор!\n\nЗакупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).\n\nДжерело: Закупівлі та витрати → Ліміти погодження\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 6,
+        "kind": "human_decision",
+        "note": "eval: підтверджено",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "recipient": "Ігор",
+            "fields": {
+              "answer": "Закупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).",
+              "source": "Закупівлі та витрати → Ліміти погодження"
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": "approve",
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 7,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "recipient": "Ігор",
+            "fields": {
+              "answer": "Закупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).",
+              "source": "Закупівлі та витрати → Ліміти погодження"
+            }
+          }
+        },
+        "result": {
+          "sent": true,
+          "reply_id": 2,
+          "recipient": "Ігор",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Ігор!\n\nЗакупівлю на суму 1800 EUR має погодити керівник напряму (ліміт для цієї суми — від 200 до 2000 EUR).\n\nДжерело: Закупівлі та витрати → Ліміти погодження\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 8,
+        "kind": "final",
+        "note": "Ігорю надіслано відповідь із регламенту: закупівлю на суму 1800 EUR має погодити керівник напряму (згідно з таблицею лімітів у розділі «Закупівлі та витрати → Ліміти погодження»).",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 2117,
+          "out": 64
+        },
+        "duration_s": 0.964
+      }
+    ]
+  },
+  {
+    "session_id": "s-90c122086a",
+    "request": {
+      "request_id": "out-of-kb",
+      "channel": "email",
+      "sender": "Марта",
+      "text": "Яка в компанії політика щодо оплати навчання на курсах з дайвінгу?",
+      "received_at": "2026-08-12T16:30:03+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 2,
+      "tokens": 3014,
+      "elapsed_s": 23.91939579999962,
+      "tool_calls": 2
+    },
+    "final_answer": "Передано HR-відділ: У базі знань немає інформації щодо політики оплати курсів дайвінгу. Запит стосується фінансів та навчання співробітника, тому потребує рішення HR або керівництва.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати search_knowledge_base",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1399,
+          "out": 26
+        },
+        "duration_s": 0.829
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "оплата навчання курси дайвінг"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "оплата навчання курси дайвінг"
+          }
+        },
+        "result": {
+          "found": false,
+          "query": "оплата навчання курси дайвінг",
+          "hint": "У базі знань нічого не знайдено. Не вигадуй відповідь — передай запит людині через escalate_to_human."
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати escalate_to_human",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1491,
+          "out": 98
+        },
+        "duration_s": 0.874
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "summary": "Питання щодо політики оплати курсів з дайвінгу від Марти (email)",
+            "reason": "У базі знань немає інформації щодо політики оплати курсів дайвінгу. Запит стосується фінансів та навчання співробітника, тому потребує рішення HR або керівництва.",
+            "to": "HR-відділ"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "summary": "Питання щодо політики оплати курсів з дайвінгу від Марти (email)",
+            "reason": "У базі знань немає інформації щодо політики оплати курсів дайвінгу. Запит стосується фінансів та навчання співробітника, тому потребує рішення HR або керівництва.",
+            "to": "HR-відділ"
+          }
+        },
+        "result": {
+          "escalated": true,
+          "reason": "У базі знань немає інформації щодо політики оплати курсів дайвінгу. Запит стосується фінансів та навчання співробітника, тому потребує рішення HR або керівництва.",
+          "to": "HR-відділ",
+          "summary": "Питання щодо політики оплати курсів з дайвінгу від Марти (email)"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      }
+    ]
+  },
+  {
+    "session_id": "s-7bd2a83ef9",
+    "request": {
+      "request_id": "work-request",
+      "channel": "webhook",
+      "sender": "Сергій",
+      "text": "Потрібен доступ на запис у Jira для нового аналітика Дмитра, він вийшов\nсьогодні. Терміново, він блокований.",
+      "received_at": "2026-08-12T16:30:27+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 5,
+      "tokens": 9924,
+      "elapsed_s": 60.21253989999968,
+      "tool_calls": 4
+    },
+    "final_answer": "Запит Сергія опрацьовано. \n\nЗгідно з регламентом, доступ на запис у Jira видається після випробувального терміну або за окремою заявкою керівника. Оскільки співробітник заблокований, я створив пріоритетну задачу в трекері для IT-відділу на надання доступу Дмитру та надіслав Сергію відповідь із поясненням процедури й статусом задачі.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати search_knowledge_base",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1414,
+          "out": 19
+        },
+        "duration_s": 0.776
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "доступ Jira"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "доступ Jira"
+          }
+        },
+        "result": {
+          "found": true,
+          "query": "доступ Jira",
+          "results": [
+            {
+              "citation": "Доступи та облікові записи → Стандартний набір для нового співробітника",
+              "text": "Створюється автоматично в день виходу:\n\n- корпоративна пошта та обліковий запис у месенджері;\n- доступ до Jira і Confluence на читання;\n- обліковий запис у менеджері паролів 1Password.\n\nДоступ на запис у Jira видається після завершення випробувального терміну або\nза окремою заявкою керівника.",
+              "score": 4.31
+            },
+            {
+              "citation": "Доступи та облікові записи → Хто видає доступи",
+              "text": "Доступи до внутрішніх систем видає IT-відділ за заявкою від керівника команди.\nСамостійні заявки від співробітника без погодження керівника не обробляються.\n\nТермін обробки заявки — **1 робочий день** для стандартних систем (пошта,\nкорпоративний месенджер, Jira, Confluence) і **до 3 робочих днів** для систем із\nдоступом до персональних даних (CRM, бухгалтерія, HR-портал).",
+              "score": 3.636
+            }
+          ]
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати create_task",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1720,
+          "out": 99
+        },
+        "duration_s": 0.996
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "create_task",
+          "args": {
+            "title": "Надати доступ на запис у Jira для Дмитра",
+            "assignee": "IT-відділ",
+            "due_date": "2026-06-06",
+            "description": "Надати доступ на запис у Jira для нового аналітика Дмитра (вийшов сьогодні). Запит терміновий, є блокування роботи.",
+            "priority": "high"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "create_task",
+          "args": {
+            "title": "Надати доступ на запис у Jira для Дмитра",
+            "assignee": "IT-відділ",
+            "due_date": "2026-06-06",
+            "description": "Надати доступ на запис у Jira для нового аналітика Дмитра (вийшов сьогодні). Запит терміновий, є блокування роботи.",
+            "priority": "high"
+          }
+        },
+        "result": {
+          "error": "дедлайн 2026-06-06 у минулому, сьогодні 2026-08-12"
+        },
+        "error": "дедлайн 2026-06-06 у минулому, сьогодні 2026-08-12",
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.006
+      },
+      {
+        "index": 6,
+        "kind": "plan",
+        "note": "викликати create_task",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1862,
+          "out": 99
+        },
+        "duration_s": 0.937
+      },
+      {
+        "index": 7,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "create_task",
+          "args": {
+            "assignee": "IT-відділ",
+            "priority": "high",
+            "title": "Надати доступ на запис у Jira для Дмитра",
+            "due_date": "2026-08-12",
+            "description": "Надати доступ на запис у Jira для нового аналітика Дмитра (вийшов сьогодні). Запит терміновий, є блокування роботи."
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 8,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "create_task",
+          "args": {
+            "assignee": "IT-відділ",
+            "priority": "high",
+            "title": "Надати доступ на запис у Jira для Дмитра",
+            "due_date": "2026-08-12",
+            "description": "Надати доступ на запис у Jira для нового аналітика Дмитра (вийшов сьогодні). Запит терміновий, є блокування роботи."
+          }
+        },
+        "result": {
+          "created": true,
+          "task_id": 1,
+          "title": "Надати доступ на запис у Jira для Дмитра",
+          "assignee": "IT-відділ",
+          "priority": "high",
+          "due_date": "2026-08-12",
+          "description": "Надати доступ на запис у Jira для нового аналітика Дмитра (вийшов сьогодні). Запит терміновий, є блокування роботи."
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 9,
+        "kind": "plan",
+        "note": "викликати reply_with_template",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 2068,
+          "out": 144
+        },
+        "duration_s": 1.072
+      },
+      {
+        "index": 10,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Згідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.",
+              "source": "Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи"
+            },
+            "recipient": "Сергій"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 11,
+        "kind": "confirmation_request",
+        "note": "Надіслати відповідь автору запиту",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Згідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.",
+              "source": "Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи"
+            },
+            "recipient": "Сергій"
+          }
+        },
+        "result": {
+          "recipient": "Сергій",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Сергій!\n\nЗгідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.\n\nДжерело: Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 12,
+        "kind": "human_decision",
+        "note": "eval: підтверджено",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Згідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.",
+              "source": "Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи"
+            },
+            "recipient": "Сергій"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": "approve",
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 13,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Згідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.",
+              "source": "Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи"
+            },
+            "recipient": "Сергій"
+          }
+        },
+        "result": {
+          "sent": true,
+          "reply_id": 3,
+          "recipient": "Сергій",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Сергій!\n\nЗгідно з регламентом, доступ на запис у Jira зазвичай видається після випробувального терміну або за заявкою керівника. Оскільки Дмитро заблокований у роботі, я створив термінову задачу для IT-відділу на надання доступу. Стандартний термін обробки — 1 робочий день.\n\nДжерело: Доступи та облікові записи → Стандартний набір для нового співробітника / Хто видає доступи\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 14,
+        "kind": "final",
+        "note": "Запит Сергія опрацьовано. \n\nЗгідно з регламентом, доступ на запис у Jira видається після випробувального терміну або за окремою заявкою керівника. Оскільки співробітник заблокований, я створив пріоритетну задачу в трекері для IT-відділу на надання доступу Дмитру та надіслав Сергію відповідь із поясненням процедури й статусом задачі.",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 2396,
+          "out": 103
+        },
+        "duration_s": 1.058
+      }
+    ]
+  },
+  {
+    "session_id": "s-1badd699ba",
+    "request": {
+      "request_id": "meeting-request",
+      "channel": "telegram",
+      "sender": "Аня",
+      "text": "Давай зберемось обговорити нову інтеграцію. Мені зручно 2 вересня о 15:00,\nна пів години. Постав, будь ласка, зустріч.",
+      "received_at": "2026-08-12T16:31:27+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 2,
+      "tokens": 3085,
+      "elapsed_s": 23.67124150000018,
+      "tool_calls": 1
+    },
+    "final_answer": "Зустріч «Обговорення нової інтеграції» успішно заброньовано на 2 вересня о 15:00 тривалістю 30 хвилин. Учасник: Аня.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати schedule_meeting",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1423,
+          "out": 61
+        },
+        "duration_s": 0.804
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "starts_at": "2024-09-02 15:00",
+            "duration_min": 30,
+            "title": "Обговорення нової інтеграції",
+            "participants": [
+              "Аня"
+            ]
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "confirmation_request",
+        "note": "Поставити зустріч у календарі",
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "starts_at": "2024-09-02 15:00",
+            "duration_min": 30,
+            "title": "Обговорення нової інтеграції",
+            "participants": [
+              "Аня"
+            ]
+          }
+        },
+        "result": {
+          "title": "Обговорення нової інтеграції",
+          "participants": [
+            "Аня"
+          ],
+          "starts_at": "2024-09-02 15:00",
+          "duration_min": 30
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "human_decision",
+        "note": "eval: підтверджено",
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "starts_at": "2024-09-02 15:00",
+            "duration_min": 30,
+            "title": "Обговорення нової інтеграції",
+            "participants": [
+              "Аня"
+            ]
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": "approve",
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 4,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "starts_at": "2024-09-02 15:00",
+            "duration_min": 30,
+            "title": "Обговорення нової інтеграції",
+            "participants": [
+              "Аня"
+            ]
+          }
+        },
+        "result": {
+          "scheduled": true,
+          "meeting_id": 1,
+          "title": "Обговорення нової інтеграції",
+          "participants": [
+            "Аня"
+          ],
+          "starts_at": "2024-09-02 15:00",
+          "duration_min": 30
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 5,
+        "kind": "final",
+        "note": "Зустріч «Обговорення нової інтеграції» успішно заброньовано на 2 вересня о 15:00 тривалістю 30 хвилин. Учасник: Аня.",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1553,
+          "out": 48
+        },
+        "duration_s": 0.714
+      }
+    ]
+  },
+  {
+    "session_id": "s-c8f1cdf3d0",
+    "request": {
+      "request_id": "meeting-at-lunch",
+      "channel": "telegram",
+      "sender": "Аня",
+      "text": "Постав зустріч по інтеграції на 2 вересня о 12:30, на 30 хвилин.",
+      "received_at": "2026-08-12T16:31:51+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 2,
+      "tokens": 3077,
+      "elapsed_s": 24.184128000000783,
+      "tool_calls": 1
+    },
+    "final_answer": "Передано HR/Office Manager: Зустріч не може бути призначена на обідній час (12:00–13:00) згідно з правилами календаря. Потрібно узгодити інший час з Анею.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати schedule_meeting",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1406,
+          "out": 49
+        },
+        "duration_s": 0.725
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "duration_min": 30,
+            "title": "Інтеграція",
+            "starts_at": "2024-09-02 12:30"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "schedule_meeting",
+          "args": {
+            "duration_min": 30,
+            "title": "Інтеграція",
+            "starts_at": "2024-09-02 12:30"
+          }
+        },
+        "result": {
+          "error": "12:00–13:00 — обідній час, зустрічі не призначаються",
+          "hint": "Виправ аргументи і виклич інструмент ще раз."
+        },
+        "error": "12:00–13:00 — обідній час, зустрічі не призначаються",
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати escalate_to_human",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1510,
+          "out": 112
+        },
+        "duration_s": 0.889
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "to": "HR/Office Manager",
+            "reason": "Зустріч не може бути призначена на обідній час (12:00–13:00) згідно з правилами календаря. Потрібно узгодити інший час з Анею.",
+            "summary": "Прохання поставити зустріч по інтеграції на 2 вересня о 12:30 (час зайнятий обідом)."
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "to": "HR/Office Manager",
+            "reason": "Зустріч не може бути призначена на обідній час (12:00–13:00) згідно з правилами календаря. Потрібно узгодити інший час з Анею.",
+            "summary": "Прохання поставити зустріч по інтеграції на 2 вересня о 12:30 (час зайнятий обідом)."
+          }
+        },
+        "result": {
+          "escalated": true,
+          "reason": "Зустріч не може бути призначена на обідній час (12:00–13:00) згідно з правилами календаря. Потрібно узгодити інший час з Анею.",
+          "to": "HR/Office Manager",
+          "summary": "Прохання поставити зустріч по інтеграції на 2 вересня о 12:30 (час зайнятий обідом)."
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      }
+    ]
+  },
+  {
+    "session_id": "s-17f886f5bc",
+    "request": {
+      "request_id": "security-incident",
+      "channel": "telegram",
+      "sender": "Павло",
+      "text": "Здається, я ввів корпоративний пароль на фішинговому сайті. Що робити?",
+      "received_at": "2026-08-12T16:32:15+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 3,
+      "tokens": 5415,
+      "elapsed_s": 36.28757520000363,
+      "tool_calls": 3
+    },
+    "final_answer": "Передано #security-incidents: Користувач ввів пароль на фішинговому сайті, надіслано інструкцію з бази знань, але потрібен контроль безпеки інциденту.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати search_knowledge_base",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1400,
+          "out": 32
+        },
+        "duration_s": 0.599
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "фішинговий сайт корпоративний пароль безпека компрометація"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "search_knowledge_base",
+          "args": {
+            "query": "фішинговий сайт корпоративний пароль безпека компрометація"
+          }
+        },
+        "result": {
+          "found": true,
+          "query": "фішинговий сайт корпоративний пароль безпека компрометація",
+          "results": [
+            {
+              "citation": "Доступи та облікові записи → Втрачений або скомпрометований пароль",
+              "text": "Якщо пароль втрачено — скидання через самообслуговування на порталі\n`id.company.local`, без заявки.\n\nЯкщо є підозра на компрометацію (пароль потрапив у листування, фішинг,\nзламаний особистий пристрій) — це **інцидент безпеки**: негайно писати в канал\n`#security-incidents`, не чекаючи відповіді IT. Обліковий запис блокується\nпротягом 15 хвилин з моменту повідомлення.",
+              "score": 7.433
+            },
+            {
+              "citation": "Доступи та облікові записи → Стандартний набір для нового співробітника",
+              "text": "Створюється автоматично в день виходу:\n\n- корпоративна пошта та обліковий запис у месенджері;\n- доступ до Jira і Confluence на читання;\n- обліковий запис у менеджері паролів 1Password.\n\nДоступ на запис у Jira видається після завершення випробувального терміну або\nза окремою заявкою керівника.",
+              "score": 3.426
+            }
+          ]
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 3,
+        "kind": "plan",
+        "note": "викликати reply_with_template",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1748,
+          "out": 120
+        },
+        "duration_s": 0.948
+      },
+      {
+        "index": 4,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Павло",
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Якщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.",
+              "source": "Доступи та облікові записи → Втрачений або скомпрометований пароль"
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 5,
+        "kind": "confirmation_request",
+        "note": "Надіслати відповідь автору запиту",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Павло",
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Якщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.",
+              "source": "Доступи та облікові записи → Втрачений або скомпрометований пароль"
+            }
+          }
+        },
+        "result": {
+          "recipient": "Павло",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Павло!\n\nЯкщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.\n\nДжерело: Доступи та облікові записи → Втрачений або скомпрометований пароль\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 6,
+        "kind": "human_decision",
+        "note": "eval: підтверджено",
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Павло",
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Якщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.",
+              "source": "Доступи та облікові записи → Втрачений або скомпрометований пароль"
+            }
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": "approve",
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 7,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "reply_with_template",
+          "args": {
+            "recipient": "Павло",
+            "template": "answer_from_kb",
+            "fields": {
+              "answer": "Якщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.",
+              "source": "Доступи та облікові записи → Втрачений або скомпрометований пароль"
+            }
+          }
+        },
+        "result": {
+          "sent": true,
+          "reply_id": 4,
+          "recipient": "Павло",
+          "template": "answer_from_kb",
+          "body": "Доброго дня, Павло!\n\nЯкщо є підозра на компрометацію (фішинг) — це інцидент безпеки: негайно пиши в канал `#security-incidents`, не чекаючи відповіді IT. Обліковий запис заблокують протягом 15 хвилин.\n\nДжерело: Доступи та облікові записи → Втрачений або скомпрометований пароль\n\nЯкщо потрібні деталі — напишіть, уточнимо.\n\nЗ повагою,\nкоманда підтримки"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.002
+      },
+      {
+        "index": 8,
+        "kind": "plan",
+        "note": "викликати escalate_to_human",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 2028,
+          "out": 87
+        },
+        "duration_s": 1.162
+      },
+      {
+        "index": 9,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "reason": "Користувач ввів пароль на фішинговому сайті, надіслано інструкцію з бази знань, але потрібен контроль безпеки інциденту.",
+            "summary": "Павло повідомив про фішинг та введення пароля",
+            "to": "#security-incidents"
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 10,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "reason": "Користувач ввів пароль на фішинговому сайті, надіслано інструкцію з бази знань, але потрібен контроль безпеки інциденту.",
+            "summary": "Павло повідомив про фішинг та введення пароля",
+            "to": "#security-incidents"
+          }
+        },
+        "result": {
+          "escalated": true,
+          "reason": "Користувач ввів пароль на фішинговому сайті, надіслано інструкцію з бази знань, але потрібен контроль безпеки інциденту.",
+          "to": "#security-incidents",
+          "summary": "Павло повідомив про фішинг та введення пароля"
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      }
+    ]
+  },
+  {
+    "session_id": "s-3029af2bcf",
+    "request": {
+      "request_id": "ambiguous",
+      "channel": "email",
+      "sender": "Невідомий",
+      "text": "Привіт. Треба щось зробити з тим питанням, ти в курсі. Дякую.",
+      "received_at": "2026-08-12T16:32:51+00:00"
+    },
+    "status": "done",
+    "budget": {
+      "steps": 1,
+      "tokens": 1478,
+      "elapsed_s": 11.691072900001018,
+      "tool_calls": 1
+    },
+    "final_answer": "Передано Support Team: Запит занадто неоднозначний, відсутні будь-які деталі щодо того, яке саме питання треба вирішити.",
+    "abort_reason": null,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "plan",
+        "note": "викликати escalate_to_human",
+        "tool": null,
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 1403,
+          "out": 75
+        },
+        "duration_s": 0.85
+      },
+      {
+        "index": 1,
+        "kind": "tool_call",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "reason": "Запит занадто неоднозначний, відсутні будь-які деталі щодо того, яке саме питання треба вирішити.",
+            "to": "Support Team",
+            "summary": "Неоднозначний запит від невідомого користувача без деталей."
+          }
+        },
+        "result": null,
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      },
+      {
+        "index": 2,
+        "kind": "tool_result",
+        "note": null,
+        "tool": {
+          "name": "escalate_to_human",
+          "args": {
+            "reason": "Запит занадто неоднозначний, відсутні будь-які деталі щодо того, яке саме питання треба вирішити.",
+            "to": "Support Team",
+            "summary": "Неоднозначний запит від невідомого користувача без деталей."
+          }
+        },
+        "result": {
+          "escalated": true,
+          "reason": "Запит занадто неоднозначний, відсутні будь-які деталі щодо того, яке саме питання треба вирішити.",
+          "to": "Support Team",
+          "summary": "Неоднозначний запит від невідомого користувача без деталей."
+        },
+        "error": null,
+        "decision": null,
+        "tokens": {
+          "in": 0,
+          "out": 0
+        },
+        "duration_s": 0.0
+      }
+    ]
+  }
+]
