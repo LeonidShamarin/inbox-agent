@@ -1,110 +1,110 @@
+**English** | [Українська](README.uk.md)
+
 # inbox-agent
 
-Агент-оркестратор вхідного потоку. На вході — запит від людини у вільній формі
-(пошта, месенджер, вебхук), на виході — **виконана дія**: відповідь із
-посиланням на регламент, створена задача, поставлена зустріч або чесно
-передана людині справа.
+An orchestrating agent for an incoming stream. Input: a request from a person in free form
+(email, messenger, webhook). Output: **an action taken**: a reply with a link to the relevant
+policy, a created task, a scheduled meeting, or a case honestly handed to a person.
 
-Це продовження `ai-request-classifier`. Той класифікує — і далі все одно
-робить людина. Цей **діє**, і головне питання проекту не «чи вміє модель
-викликати функції», а: **що не дасть їй наробити дурниць.**
+It continues `ai-request-classifier`. That one classifies, and a person still does the rest.
+This one **acts**, and the main question of the project is not "can the model call functions"
+but: **what stops it from doing something stupid.**
 
-![Демо: запит → траса рішень → пауза на підтвердженні → відповідь надіслано](docs/demo.gif)
+![Demo: request → decision trace → pause for confirmation → reply sent](docs/demo.gif)
 
-На записі — реальний прогін: запит про відпустку, агент шукає в регламенті,
-складає відповідь **із посиланням на розділ** і зупиняється. У картці
-підтвердження видно готовий текст листа, а не сирі аргументи виклику. Після
-«Підтвердити» лист іде, а в трасі лишається повний ланцюжок разом із рішенням
-людини. Бюджет унизу: 3 кроки з 6, 5526 токенів із 20 000, 14.1 с.
+The recording is a real run: a question about leave, the agent searches the policies, drafts a
+reply **with a link to the section** and stops. The confirmation card shows the finished email
+text, not raw call arguments. After "Confirm" the email goes out, and the trace keeps the whole
+chain together with the person's decision. The budget at the bottom: 3 steps of 6, 5526 tokens
+of 20 000, 14.1 s.
 
-Три відповіді, кожна з них — окремий шар:
+Three risks, each answered by its own layer:
 
-| Ризик | Запобіжник |
+| Risk | Safeguard |
 |---|---|
-| агент зациклиться і з'їсть квоту | три незалежні бюджети: кроки, токени, час |
-| агент зробить незворотну дію | пауза й підтвердження людини перед нею |
-| агент вигадає факт про компанію | пошук по регламентах із порогом релевантності й ескалація, коли не знайдено |
+| the agent loops and eats the quota | three independent budgets: steps, tokens, time |
+| the agent takes an irreversible action | a pause and a person's confirmation before it |
+| the agent invents a fact about the company | a policy search with a relevance threshold, and escalation when nothing is found |
 
 ---
 
-## Що всередині
+## What is inside
 
 ```
-запит → [модель обирає інструмент] → [бюджет?] → [незворотна дія? → ЛЮДИНА]
-      → [виконання] → [результат назад у модель] → … → підсумок
+request → [model picks a tool] → [budget?] → [irreversible? → PERSON]
+        → [execute] → [result back to the model] → … → summary
 ```
 
-П'ять інструментів, нативний function calling Gemini, **без фреймворку**:
-увесь агент — це один явний `while` у `src/agent.py`. Фреймворк ховає саме цей
-цикл, а разом із ним і місця, куди треба ставити запобіжники.
+Five tools, native Gemini function calling, **no framework**: the whole agent is one explicit
+`while` in `src/agent.py`. A framework hides exactly this loop, and with it the places where the
+safeguards have to go.
 
-| Інструмент | Що робить | Підтвердження |
+| Tool | What it does | Confirmation |
 |---|---|---|
-| `search_knowledge_base` | шукає у внутрішніх регламентах, повертає фрагмент із посиланням на розділ | ні |
-| `create_task` | створює внутрішню задачу в трекері | ні |
-| `reply_with_template` | надсилає відповідь автору за шаблоном | **так** |
-| `schedule_meeting` | ставить зустріч у календарі учасників | **так** |
-| `escalate_to_human` | передає запит людині (термінальний) | ні |
+| `search_knowledge_base` | searches internal policies, returns a fragment with a link to the section | no |
+| `create_task` | creates an internal task in the tracker | no |
+| `reply_with_template` | sends a templated reply to the author | **yes** |
+| `schedule_meeting` | puts a meeting in the participants' calendars | **yes** |
+| `escalate_to_human` | hands the request to a person (terminal) | no |
 
-### Чому підтвердження не на всьому
+### Why not confirm everything
 
-Спокуса позначити «потребує підтвердження» на кожній дії, що щось змінює, —
-і саме так human-in-the-loop перетворюється на штамп. Коли підтвердження
-просять двадцять разів на день, людина тисне «підтвердити» не читаючи, і
-запобіжник перестає працювати рівно тоді, коли він потрібен.
+The temptation is to mark every action that changes something as "needs confirmation", and that
+is exactly how human-in-the-loop becomes a rubber stamp. When confirmation is asked twenty times
+a day, a person clicks "confirm" without reading, and the safeguard stops working precisely when
+it is needed.
 
-Тому межа проведена не по «читає / пише», а по **зворотності й видимості**:
-внутрішню задачу видаляють одним рухом, а лист, який пішов клієнтові, назад не
-забереш. Помилитись у бік «зайве підтвердження» дешево лише на папері.
+So the line is drawn not by "reads / writes" but by **reversibility and visibility**: an
+internal task is deleted in one move, an email that went to a customer cannot be taken back.
+Erring towards "one confirmation too many" is cheap only on paper.
 
 ---
 
-## Швидкий старт
+## Quick start
 
 ```bash
 python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt     # Linux/macOS: .venv/bin/pip
 
 cp .env.example .env
-# вписати у .env: GEMINI_API_KEY=<ключ з https://aistudio.google.com/apikey>
+# in .env: GEMINI_API_KEY=<key from https://aistudio.google.com/apikey>
 
-.venv/Scripts/python main.py serve                # веб-інтерфейс на :7860
+.venv/Scripts/python main.py serve                # web UI on :7860
 .venv/Scripts/python main.py ask "Скільки днів відпустки?"
-.venv/Scripts/python main.py eval --retrieval-only   # метрики пошуку, без мережі
+.venv/Scripts/python main.py eval --retrieval-only   # search metrics, no network
 ```
 
-Без ключа сервіс **усе одно піднімається**: черга підтверджень, траси й рішення
-людини працюють, `POST /requests` віддає 503. Показувати порожню форму замість
-роботи агента означало б робити демо, яке виглядає працюючим і не є ним.
+Without a key the service **still starts**: the confirmation queue, traces and a person's
+decisions work, `POST /requests` returns 503. Showing an empty form instead of the agent's work
+would mean a demo that looks working and is not.
 
-### Команди
+### Commands
 
-| Команда | Що робить |
+| Command | What it does |
 |---|---|
-| `ask <текст>` | один запит, траса в консоль; `--approve` одразу підтверджує |
-| `inbox` | прогін демо-набору запитів зі `eval/scenarios.yaml` |
-| `serve` | HTTP API + веб-інтерфейс на `PORT` (дефолт 7860) |
-| `eval` | метрики пошуку і поведінки агента |
-| `eval --retrieval-only` | тільки пошук — без мережі, без ключа, без витрат |
+| `ask <text>` | one request, trace to the console; `--approve` confirms right away |
+| `inbox` | a run over the demo set of requests from `eval/scenarios.yaml` |
+| `serve` | HTTP API + web UI on `PORT` (default 7860) |
+| `eval` | search and agent behaviour metrics |
+| `eval --retrieval-only` | search only: no network, no key, no cost |
 
-### Тести
+### Tests
 
 ```bash
-.\scripts\run_tests_capped.ps1        # Windows: ліміт памʼяті тримає ядро
-.venv/Scripts/python -m pytest -q     # звичайний прогін
+.\scripts\run_tests_capped.ps1        # Windows: the kernel holds the memory limit
+.venv/Scripts/python -m pytest -q     # a regular run
 ```
 
-Ключ не потрібен: модель підмінена **сценарним фейком**, який віддає наперед
-задану послідовність ходів. Завдяки цьому перевіряється саме цикл — бюджети,
-пауза, відновлення — а не поведінка живої моделі, яка щоразу інакша.
+No key needed: the model is replaced by a **scripted fake** that returns a predefined sequence
+of moves. That way the loop itself is tested (budgets, pause, resume), not the behaviour of a
+live model that differs every time.
 
-Про `run_tests_capped.ps1` окремо: ліміт памʼяті ставиться через
-`docker run --memory`, тобто cgroups. Попередня версія робила те саме через
-Windows Job Object і P/Invoke до `kernel32` — і Avast карантинував її як
-`IDP.HELU.PSD11` (евристика «маніпуляція процесами», хибне спрацювання).
-Сперечатися з антивірусом марно, а ліміт потрібен: незакритий цикл у тестах
-одного разу зʼїв 27 ГБ. Перевірено, що стеля справді тримає: спроба виділити
-3 ГБ під лімітом 512 МБ дає код виходу 137 — процес убиває ядро, хост цілий.
+A note on `run_tests_capped.ps1`: the memory limit is set with `docker run --memory`, i.e.
+cgroups. The previous version did the same through a Windows Job Object and P/Invoke into
+`kernel32`, and Avast quarantined it as `IDP.HELU.PSD11` (a "process manipulation" heuristic, a
+false positive). Arguing with an antivirus is pointless, and the limit is needed: an unclosed
+loop in the tests once ate 27 GB. Checked that the ceiling really holds: trying to allocate
+3 GB under a 512 MB limit exits with code 137; the kernel kills the process, the host is fine.
 
 ### Docker
 
@@ -115,184 +115,180 @@ docker run --rm -p 7860:7860 --env-file .env inbox-agent
 
 ---
 
-## Запобіжники: що саме зупиняє агента
+## Safeguards: what exactly stops the agent
 
-### Три бюджети, і чому саме три
+### Three budgets, and why three
 
-Вони ловлять різні збої, тому жоден не замінює інший:
+They catch different failures, so none replaces another:
 
-* **`max_steps`** — модель ходить по колу різними формулюваннями;
-* **`max_tokens`** — кроків небагато, але контекст росте і кожен дорожчає;
-* **`timeout_s`** — обидва попередні мовчать, бо один виклик просто висить.
+* **`max_steps`**: the model goes in circles with different wordings;
+* **`max_tokens`**: few steps, but the context grows and each one costs more;
+* **`timeout_s`**: both of the above are silent because one call simply hangs.
 
-Плюс четвертий, який не є бюджетом: **детектор циклу**. Ліміту кроків
-недостатньо — агент може вкластися в шість кроків і при цьому шість разів
-запитати те саме. Однакові аргументи означають однаковий результат, тому
-повтор виклику з тими самими аргументами зупиняє сесію.
+Plus a fourth that is not a budget: a **loop detector**. A step limit is not enough: the agent
+can fit into six steps and still ask the same thing six times. Same arguments mean the same
+result, so repeating a call with the same arguments stops the session.
 
-Перевищення будь-якого ліміту — не виняток, а нормальний кінець сесії зі
-статусом `aborted` і причиною в трасі. Мовчазне продовження було б інцидентом.
+Exceeding any limit is not an exception but a normal end of the session with status `aborted`
+and the reason in the trace. Silently carrying on would be an incident.
 
-**Витрати живуть у сесії, а не в пам'яті процесу.** Інакше «ліміт на задачу»
-перетворюється на «ліміт на спробу»: агент, який упав і перезапустився, обходив
-би власний запобіжник.
+**Spending lives in the session, not in process memory.** Otherwise "a limit per task" turns
+into "a limit per attempt": an agent that crashed and restarted would bypass its own safeguard.
 
-### Пауза, а не блокування
+### A pause, not a block
 
-Агент, який уперся в незворотну дію, **не чекає** на людину в пам'яті. Він
-зберігає стан і виходить. Рішення приходить окремим викликом `resume()` —
-можливо, наступного ранку і точно в іншому процесі.
+An agent that hit an irreversible action **does not wait** for a person in memory. It saves its
+state and exits. The decision arrives as a separate `resume()` call, maybe the next morning and
+certainly in another process.
 
-Щоб це працювало, історія розмови з моделлю **не зберігається** окремо: вона
-щоразу відновлюється зі збереженої траси. Сесія, що чекає на підтвердження, —
-це рядок у SQLite, а не об'єкт у пам'яті сервісу.
+For that to work, the conversation history with the model is **not stored** separately: it is
+rebuilt every time from the saved trace. A session waiting for confirmation is a row in SQLite,
+not an object in the service's memory.
 
-**Відмова не завершує сесію.** Модель дізнається про неї тим самим каналом, що
-й про будь-який результат інструмента, і обирає інший шлях — зазвичай
-ескалацію. Обривати роботу на «ні» означало б лишити запит без відповіді
-взагалі.
+**A refusal does not end the session.** The model learns about it through the same channel as
+any tool result and picks another path, usually escalation. Stopping on "no" would leave the
+request with no answer at all.
 
 ---
 
-## Пошук по базі знань
+## Knowledge base search
 
-`search_knowledge_base` реалізований **усередині проекту** — це не звернення до
-сусіднього сервісу. Інструмент агента має відповідати за частки секунди й не
-тягнути півтора гігабайта ваг: він викликається всередині циклу, під таймаутом
-усієї задачі.
+`search_knowledge_base` is implemented **inside the project**; it is not a call to a
+neighbouring service. An agent tool has to answer in fractions of a second and not drag a
+gigabyte and a half of weights: it is called inside the loop, under the whole task's timeout.
 
-Тому лексичний пошук: структурне чанкування markdown (межа — заголовок, а не
-N символів) + BM25 з українським стемером. Токенізація і стемер перенесені з
-мого ж `kb-rag-assistant`, де ефект стемера заміряний.
+Hence lexical search: structural chunking of markdown (the boundary is a heading, not N
+characters) + BM25 with a Ukrainian stemmer. Tokenisation and the stemmer come from my own
+`kb-rag-assistant`, where the stemmer's effect was measured.
 
 ---
 
-## Метрики
+## Metrics
 
-Числа з [`output/eval-report.md`](output/eval-report.md), повні траси —
-у [`output/traces.json`](output/traces.json). Відтворюються командою
-`main.py eval`; частина про пошук — без мережі й без ключа.
+Numbers from [`output/eval-report.md`](output/eval-report.md), full traces in
+[`output/traces.json`](output/traces.json). Reproduced with `main.py eval`; the search part
+needs no network and no key.
 
-### Головне: чи спрацював запобіжник
+### The main one: did the safeguard work
 
-8 сценаріїв, `gemini-3.5-flash-lite`.
+8 scenarios, `gemini-3.5-flash-lite`.
 
-| Показник | Значення |
+| Metric | Value |
 |---|---|
-| Незворотних дій агент спробував зробити | 6 |
-| З них зупинено й показано людині | 5 |
-| Відсіяно перевіркою аргументів, людину не турбували | 1 |
-| **Виконано без людини** | **0** |
-| Сценаріїв пройдено повністю | **100%** (8 з 8) |
-| Правильний перший інструмент | **100%** |
-| У межах бюджету | 100% |
-| Кроків на сценарій (сер. / макс. / ліміт) | 2.62 / 5 / 6 |
-| Вартість 1000 запитів | **$1.16** |
+| Irreversible actions the agent attempted | 6 |
+| Of them stopped and shown to a person | 5 |
+| Rejected by argument validation, the person not bothered | 1 |
+| **Executed without a person** | **0** |
+| Scenarios fully passed | **100%** (8 of 8) |
+| Correct first tool | **100%** |
+| Within budget | 100% |
+| Steps per scenario (avg / max / limit) | 2.62 / 5 / 6 |
+| Cost per 1000 requests | **$1.16** |
 
-Рядок «відсіяно перевіркою» — це сценарій, де агент спробував поставити
-зустріч на 12:30. Регламент забороняє обідній час, перевірка аргументів
-відмовила **до** паузи, агент побачив причину текстом і передав справу людині.
-Тобто людину потурбували рівно 5 разів із 6 можливих, і жодного разу — даремно.
+The "rejected by validation" row is the scenario where the agent tried to book a meeting at
+12:30. The policy forbids lunchtime, argument validation refused **before** the pause, the agent
+saw the reason as text and handed the case to a person. So the person was bothered exactly 5
+times out of 6 possible, and never for nothing.
 
-### Пошук по базі знань
+### Knowledge base search
 
-25 питань із відповіддю в базі і 7 — без неї.
+25 questions with an answer in the base and 7 without.
 
-| Конфігурація | hit@1 | hit@3 | мовчить поза базою |
+| Configuration | hit@1 | hit@3 | silent outside the base |
 |---|---|---|---|
-| без стемера, без порогу | 76.0% | 92.0% | 28.6% |
-| без стемера | 72.0% | 84.0% | 100.0% |
-| стемер, без порогу | 76.0% | **100.0%** | 28.6% |
-| **стемер + поріг (робоча)** | **76.0%** | **92.0%** | **100.0%** |
+| no stemmer, no threshold | 76.0% | 92.0% | 28.6% |
+| no stemmer | 72.0% | 84.0% | 100.0% |
+| stemmer, no threshold | 76.0% | **100.0%** | 28.6% |
+| **stemmer + threshold (used)** | **76.0%** | **92.0%** | **100.0%** |
 
-Два висновки, які без таблиці були б просто словами:
+Two conclusions that without the table would just be words:
 
-**Стемер вартий свого місця.** З порогом він дає +8 п.п. hit@3 (92% проти 84%).
-Українська флективна: «днів» і «дні» без нормалізації — різні токени.
+**The stemmer earns its place.** With the threshold it gives +8 p.p. hit@3 (92% vs 84%).
+Ukrainian is inflected: «днів» and «дні» (both forms of "days") are different tokens without
+normalisation.
 
-**Поріг — це компроміс, і його треба міряти, а не вгадувати.**
+**The threshold is a trade-off, and it has to be measured, not guessed.**
 
-| Поріг | hit@3 | мовчить поза базою |
+| Threshold | hit@3 | silent outside the base |
 |---|---|---|
-| 0–1 | 100.0% | 28.6% |
+| 0-1 | 100.0% | 28.6% |
 | 2 | 100.0% | 71.4% |
-| **3 (робочий)** | **92.0%** | **100.0%** |
+| **3 (used)** | **92.0%** | **100.0%** |
 | 4 | 84.0% | 100.0% |
 | 5 | 72.0% | 100.0% |
 
-Без порогу пошук знаходить усе — і на питання «хто президент Марса» теж
-повертає розділ регламенту, бо слово «хто» є в половині документів. Агент
-чесно вважав би це відповіддю. Перша спроба порогу була 4.0, заміряна на семи
-питаннях; на повному наборі виявилося, що вона коштує 8 п.п. повноти задарма.
+Without a threshold the search finds everything, and for "who is the president of Mars" it also
+returns a policy section, because the word "who" is in half the documents. The agent would
+honestly take that as an answer. The first threshold was 4.0, measured on seven questions; on
+the full set it turned out to cost 8 p.p. of recall for nothing.
 
 ---
 
-## Де рішення ламається / обмеження
+## Where it breaks / limits
 
-- **Лексичний пошук не знає синонімів.** «Зламали акаунт» і «компрометація
-  облікового запису» не мають жодного спільного токена. Закрито словником на
-  десяток пар для найчастіших розбіжностей — це латка, а не розв'язання: слова,
-  якого в словнику немає, так само не знайдеться. Embeddings закрили б клас
-  цілком, але ціна — ваги моделі в циклі агента під таймаутом.
-- **Поріг релевантності має тонкий запас.** Найвищий бал серед питань поза
-  базою — 2.995 при порозі 3.0. На більшому корпусі поріг доведеться
-  переміряти, а не успадкувати.
-- **Один агент, один цикл, без пам'яті між запитами.** Кожен запит — окрема
-  сесія. «Той самий звіт, що Оля просила в понеділок» цей агент не зв'яже:
-  для цього потрібен пошук по історії запитів, а не по регламентах.
-- **Побічні ефекти імітовані.** `create_task` пише в SQLite, а не в справжню
-  Jira; `reply_with_template` зберігає лист, а не надсилає. Це свідомо: інтеграції
-  з чужими API — окрема робота, а тут доводиться механіка агента. Місце для
-  справжнього клієнта — рівно один обробник у `src/tools.py`.
-- **Паралельні виклики інструментів ігноруються.** Модель іноді просить два
-  одразу; беремо перший. Причина не в лінощах: паралельні виклики ламають і
-  бюджет по кроках, і підтвердження — людина мала б погоджувати їх пачкою, не
-  бачачи, який від чого залежить.
-- **Gemini 3 і `thought_signature`.** Виклик функції треба повертати в історії
-  разом із непрозорим підписом міркування, інакше **наступний** хід падає з
-  400 INVALID_ARGUMENT. Перший хід при цьому проходить, тому баг виглядає як
-  «агент ламається на другому кроці». Підпис тепер зберігається в трасі — і
-  саме тому пауза на підтвердженні переживає перезапуск процесу.
-- **Немає Telegram.** Планувався як інтерфейс підтвердження; зроблено веб, бо
-  його видно в демо й він тестується без токена. Місце для адаптера — той самий
-  `resume()`, який уже викликає HTTP-шар.
-- **Сценаріїв у eval вісім.** Це перевірка поведінки на типових випадках, а не
-  статистика. Достатньо, щоб побачити провал, замало, щоб порівнювати моделі.
-
----
-
-## Що зробив би далі
-
-1. **Довести побічні ефекти до справжніх систем** — Jira і календар. Обробники
-   вже ізольовані, міняється лише тіло функції.
-2. **Пам'ять між запитами**: пошук по попередніх сесіях того самого відправника,
-   щоб агент бачив «це те саме, що просили вчора».
-3. **Оцінка не тільки поведінки, а й тексту**: зараз перевіряється, який
-   інструмент обрано; чи гарна відповідь у листі — не міряється.
-4. **Телеметрія бюджетів у проді**: розподіл кроків і токенів на реальному
-   потоці показав би, де стеля стоїть занадто високо.
-5. **Telegram-адаптер** із кнопками підтвердження поверх наявного `resume()`.
+- **Lexical search does not know synonyms.** "Account got hacked" and "account compromise" share
+  no token. Patched with a dictionary of a dozen pairs for the most common mismatches; that is a
+  patch, not a solution: a word that is not in the dictionary will not be found either.
+  Embeddings would close the whole class, but at the price of model weights in the agent loop
+  under a timeout.
+- **The relevance threshold has a thin margin.** The highest score among out-of-base questions
+  is 2.995 against a threshold of 3.0. On a bigger corpus the threshold has to be re-measured,
+  not inherited.
+- **One agent, one loop, no memory between requests.** Each request is a separate session. "The
+  same report Olya asked for on Monday" is something this agent will not link: that needs a
+  search over request history, not over policies.
+- **Side effects are simulated.** `create_task` writes to SQLite, not to a real Jira;
+  `reply_with_template` stores the email instead of sending it. That is deliberate: integrations
+  with someone else's APIs are separate work, and this project proves the agent mechanics. The
+  place for a real client is exactly one handler in `src/tools.py`.
+- **Parallel tool calls are ignored.** The model sometimes asks for two at once; the first is
+  taken. Not out of laziness: parallel calls break both the step budget and confirmation, as a
+  person would have to approve a batch without seeing which depends on which.
+- **Gemini 3 and `thought_signature`.** A function call has to be returned in the history
+  together with an opaque reasoning signature, otherwise the **next** turn fails with 400
+  INVALID_ARGUMENT. The first turn passes, so the bug looks like "the agent breaks on the second
+  step". The signature is now stored in the trace, and that is also why a pause for confirmation
+  survives a process restart.
+- **No Telegram.** It was planned as the confirmation interface; a web UI was built instead
+  because it shows in the demo and is testable without a token. The place for an adapter is the
+  same `resume()` the HTTP layer already calls.
+- **The eval has eight scenarios.** That checks behaviour on typical cases, not statistics.
+  Enough to see a failure, too few to compare models.
 
 ---
 
-## Структура
+## What I would do next
+
+1. **Take side effects to real systems**: Jira and a calendar. The handlers are already
+   isolated; only the function body changes.
+2. **Memory between requests**: search over previous sessions of the same sender, so the agent
+   sees "this is the same thing asked yesterday".
+3. **Evaluate the text, not only behaviour**: right now the check is which tool was chosen;
+   whether the email reply is good is not measured.
+4. **Budget telemetry in production**: the distribution of steps and tokens on a real stream
+   would show where the ceiling sits too high.
+5. **A Telegram adapter** with confirmation buttons on top of the existing `resume()`.
+
+---
+
+## Structure
 
 ```
 inbox-agent/
 ├── main.py                  # CLI: ask / inbox / serve / eval
 ├── src/
-│   ├── agent.py             # цикл: бюджети, пауза, відновлення з траси
-│   ├── tools.py             # п'ять інструментів + межа підтвердження
-│   ├── llm.py               # нативний function calling, 4 рівні стійкості
-│   ├── retrieval.py         # чанкування + BM25 + стемер + поріг
-│   ├── store.py             # SQLite: сесії, черга, побічні ефекти
-│   ├── schema.py            # сесія як стан, журнал і точка відновлення
-│   ├── config.py            # бюджети
-│   ├── evaluate.py          # метрики пошуку і поведінки
+│   ├── agent.py             # the loop: budgets, pause, resume from the trace
+│   ├── tools.py             # five tools + the confirmation boundary
+│   ├── llm.py               # native function calling, 4 levels of resilience
+│   ├── retrieval.py         # chunking + BM25 + stemmer + threshold
+│   ├── store.py             # SQLite: sessions, queue, side effects
+│   ├── schema.py            # the session as state, log and resume point
+│   ├── config.py            # budgets
+│   ├── evaluate.py          # search and behaviour metrics
 │   └── app.py               # FastAPI
-├── web/index.html           # інтерфейс: траса, картка підтвердження
-├── data/kb/                 # регламенти компанії (синтетичні)
-├── eval/                    # сценарії агента + питання для пошуку
-├── tests/                   # 48 тестів, жодного мережевого виклику
+├── web/index.html           # UI: trace, confirmation card
+├── data/kb/                 # company policies (synthetic)
+├── eval/                    # agent scenarios + search questions
+├── tests/                   # 48 tests, not a single network call
 └── scripts/run_tests_capped.ps1
 ```
