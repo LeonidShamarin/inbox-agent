@@ -354,7 +354,7 @@ class FallbackAgentLLM:
         for name, client in self.members:
             try:
                 return await client.decide(history, tools)
-            except (LLMError, DailyQuotaExceeded) as exc:
+            except (LLMError, DailyQuotaExceeded, genai_errors.APIError) as exc:
                 errors.append(f"{name}: {str(exc)[:150]}")
         raise LLMError("усі Gemini-ключі відмовили -> " + " | ".join(errors))
 
