@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import logging
+import os
 import random
 import re
 import time
@@ -326,3 +327,69 @@ class GeminiAgentLLM:
         if texts:
             decision.text = "\n".join(texts).strip()
         return decision
+
+
+# --- фолбек між кількома Gemini-ключами --------------------------------------
+#
+# Цей агент — Gemini-нативний (function_call + thought_signature), тож крос-
+# провайдерний фолбек тут непрактичний. Натомість ротуємо кілька Gemini-ключів:
+# основний GEMINI_API_KEY, далі ключі з ключі2.txt (GEMINI_API_KEY_2/_3) в останню
+# чергу. Це покриває головний реальний збій — мертвий або вичерпаний за добу ключ.
+# Кожен ключ має власний клієнт (свій rate limiter і прапорець денної квоти).
+
+_GEMINI_KEY_VARS = ("GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3")
+
+
+class FallbackAgentLLM:
+    """Пробує Gemini-ключі по черзі; на `LLMError`/`DailyQuotaExceeded` бере
+    наступний. Кидає помилку лише коли відмовили всі ключі."""
+
+    def __init__(self, members: list[tuple[str, "AgentLLM"]]):
+        if not members:
+            raise LLMError("порожній ланцюжок Gemini-ключів")
+        self.members = members
+
+    async def decide(self, history: list["Turn"], tools: list["ToolSpec"]) -> "ModelDecision":
+        errors: list[str] = []
+        for name, client in self.members:
+            try:
+                return await client.decide(history, tools)
+            except (LLMError, DailyQuotaExceeded) as exc:
+                errors.append(f"{name}: {str(exc)[:150]}")
+        raise LLMError("усі Gemini-ключі відмовили -> " + " | ".join(errors))
+
+
+def _gemini_keys(env: dict) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for var in _GEMINI_KEY_VARS:
+        key = (env.get(var) or "").strip()
+        if key and key not in seen:
+            seen.add(key)
+            out.append((var, key))
+    return out
+
+
+def build_agent_llm(
+    *,
+    model: str = DEFAULT_MODEL,
+    env: dict | None = None,
+    system_prompt: str = SYSTEM_PROMPT,
+    rpm: int = DEFAULT_RPM,
+    temperature: float = 0.0,
+) -> "AgentLLM":
+    """Збирає агента з ланцюжком Gemini-ключів. Один ключ — звичайний клієнт,
+    кілька — обгортка з фолбеком. Без жодного ключа кидає `LLMError`."""
+    env = os.environ if env is None else env
+    keys = _gemini_keys(env)
+    if not keys:
+        raise LLMError("GEMINI_API_KEY не заданий")
+    members = [
+        (f"gemini:{var}",
+         GeminiAgentLLM(api_key=key, model_name=model, temperature=temperature,
+                        rpm=rpm, system_prompt=system_prompt))
+        for var, key in keys
+    ]
+    if len(members) == 1:
+        return members[0][1]
+    return FallbackAgentLLM(members)

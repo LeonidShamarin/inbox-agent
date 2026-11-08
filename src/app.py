@@ -14,7 +14,6 @@ HTTP-шар: приймання запитів, черга підтвердже�
 from __future__ import annotations
 
 import logging
-import os
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -25,7 +24,7 @@ from pydantic import BaseModel
 
 from src.agent import Agent
 from src.config import config_from_env
-from src.llm import DailyQuotaExceeded, GeminiAgentLLM
+from src.llm import DailyQuotaExceeded, LLMError, build_agent_llm
 from src.retrieval import KnowledgeBase
 from src.schema import InboundRequest
 from src.store import AgentStore, utc_now
@@ -63,13 +62,12 @@ def create_app(
     store = store if store is not None else AgentStore(db_path)
 
     if agent is None:
-        api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-        if api_key:
-            llm = GeminiAgentLLM(api_key=api_key, model_name=cfg.model, rpm=cfg.rpm,
-                                 temperature=cfg.temperature)
-            agent = Agent(llm=llm, store=store, kb=KnowledgeBase.from_dir(Path(kb_dir)), cfg=cfg)
+        try:
+            llm = build_agent_llm(model=cfg.model, rpm=cfg.rpm, temperature=cfg.temperature)
+        except LLMError:
+            logger.warning("жодного Gemini-ключа не задано — приймання запитів вимкнено")
         else:
-            logger.warning("GEMINI_API_KEY не заданий — приймання запитів вимкнено")
+            agent = Agent(llm=llm, store=store, kb=KnowledgeBase.from_dir(Path(kb_dir)), cfg=cfg)
 
     @app.get("/health")
     def health() -> dict:
